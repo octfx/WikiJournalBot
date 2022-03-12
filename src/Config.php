@@ -64,12 +64,13 @@ final class Config {
 	 * Get an entry from the config
 	 *
 	 * @param string $key The key to access
-	 * @param null $default mixed Default value to return if key was not found
+	 * @param mixed $default Default value to return if key was not found
 	 *
 	 * @return string|null
 	 */
 	public function get( string $key, $default = null ): ?string {
-		$value = $this->config[$key];
+		$value = $this->config[$key] ?? null;
+
 		if ( empty( $value ) ) {
 			return $default ?? null;
 		}

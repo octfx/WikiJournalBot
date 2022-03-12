@@ -36,16 +36,13 @@ final class ContentCreator {
 	public function __construct( array $pageContentResult ) {
 		$this->logger = Logger::getInstance();
 
-		if ( isset( $pageContentResult['error'] ) ) {
-			$this->logger->error( 'Page content API result has errors.', $pageContentResult['error'] );
+		if ( empty( $pageContentResult ) ) {
+			$this->logger->error( 'Page content API result has errors.' );
 			return;
 		}
 
-		$page = array_shift( $pageContentResult['query'] );
-		$page = array_shift( $page );
-
-		$this->title = $page['title'];
-		$this->content = $page['revisions'][0]['slots']['main']['*'];
+		$this->title = $pageContentResult['title'];
+		$this->content = $pageContentResult['content'];
 	}
 
 	/**
@@ -60,8 +57,14 @@ final class ContentCreator {
 	public function getUpdatedPageContent(): ?string {
 		[ $volume, $issue ] = $this->getVolumeIssue();
 
-		if ( $volume === -1 ) {
+		if ( $volume === -1 || $this->content === null ) {
 			throw new RuntimeException( sprintf( 'Could not parse Volume and Issue for page %s', $this->title ) );
+		}
+
+		if ( !WikiversityBot::allowBots( $this->content ?? '', Config::getInstance()->get( 'BOT_NAME', 'WikiversityListBot' ) ) ) {
+			$this->logger->info( sprintf( 'Found {{nobots}} template in page "%s", skipping.', $this->title ) );
+
+			return null;
 		}
 
 		$found = preg_match( '/\|row_template\s?=\s?(\w+)/', $this->content, $matches );

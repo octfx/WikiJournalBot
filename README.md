@@ -14,6 +14,9 @@ The actual rendering of the item is done by a separate template. Which template 
 
 Note: Currently only one list per page is supported.
 
+The bot will honor the [{{bots}}](https://en.wikipedia.org/wiki/Template:Bots) template, with the username set in `.env`.  
+The bot can be disabled by placing `{{nobots}}` on its user page.
+
 ## Usage
 Pages that should be edited by the bot need to contain two templates.  
 The beginning of a list is denoted by the `{{WikiJournalBotList}}` template, it takes the following arguments:

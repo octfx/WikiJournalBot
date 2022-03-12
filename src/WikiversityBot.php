@@ -51,6 +51,30 @@ SPARQL;
 	}
 
 	/**
+	 * Check if the page content contains the {{bots}} or {{nobots}} template
+	 * Copied from https://en.wikipedia.org/wiki/Template:Bots
+	 *
+	 * @param string $text
+	 * @param string $user
+	 * @return bool
+	 */
+	public static function allowBots( string $text, string $user ): bool {
+		if ( preg_match( '/{{(nobots|bots\|allow=none|bots\|deny=all|bots\|optout=all|bots\|deny=.*?' . preg_quote( $user, '/' ) . '.*?)}}/iS', $text ) ) {
+			return false;
+		}
+
+		if ( preg_match( '/{{(bots\|allow=all|bots\|allow=.*?' . preg_quote( $user, '/' ) . '.*?)}}/iS', $text ) ) {
+			return true;
+		}
+
+		if ( preg_match( '/{{(bots\|allow=.*?)}}/iS', $text ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Work on all pages that transclude the template set in 'ARTICLE_VOLUME_LIST_TEMPLATE'.
 	 * For each page retrieve all articles that match the query in $PUBLISHED_ARTICLES
 	 * Replace the content between {{ARTICLE_VOLUME_LIST_TEMPLATE}} and {{ListEnd}} with WikiText
@@ -59,6 +83,12 @@ SPARQL;
 	 */
 	public function populateArticleLists(): void {
 		$this->logger->info( 'Starting population of article lists.' );
+
+		if ( !$this->checkBotAllowed() ) {
+			$this->logger->info( 'Bot userpage contains {{nobots}} template, exiting.' );
+
+			return;
+		}
 
 		$template = Config::getInstance()->get( 'ARTICLE_VOLUME_LIST_TEMPLATE' );
 
@@ -109,14 +139,14 @@ SPARQL;
 		$request = new PageContentRequest( $title );
 
 		try {
-			$response = AbstractBaseRequest::makeRequest( $request );
+			$response = PageContentRequest::getContentFromRequest( $request );
 		} catch ( GuzzleException $e ) {
 			$this->logger->error( sprintf( 'Could not retrieve page content for title "%s".', $title ), [ 'message' => $e->getMessage() ] );
 
 			return;
 		}
 
-		$contentCreator = new ContentCreator( json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR ) );
+		$contentCreator = new ContentCreator( $response );
 
 		$content = $contentCreator->getUpdatedPageContent();
 
@@ -131,5 +161,27 @@ SPARQL;
 				$this->logger->info( sprintf( 'Successfully updated list for title "%s".', $title ) );
 			}
 		}
+	}
+
+	/**
+	 * Disables the bot if the '{{nobots}}' template was found on the userpage
+	 *
+	 * @return bool True if the bot can proceed
+	 */
+	private function checkBotAllowed(): bool {
+		$username = Config::getInstance()->get( 'BOT_NAME', 'WikiversityListBot' );
+		$request = new PageContentRequest( sprintf( 'User:%s', $username ) );
+		try {
+			$response = PageContentRequest::getContentFromRequest( $request );
+		} catch ( GuzzleException $e ) {
+			$this->logger->error( $e->getMessage() );
+			return false;
+		}
+
+		if ( empty( $response ) ) {
+			return false;
+		}
+
+		return self::allowBots( $response['content'], $username );
 	}
 }

@@ -4,8 +4,7 @@ declare( strict_types=1 );
 
 namespace Octfx\WikiversityBot;
 
-use DateTime;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
 
 final class Logger {
 
@@ -16,13 +15,15 @@ final class Logger {
 	 * Creates a monolog instance
 	 */
 	private function __construct() {
-		$time = new DateTime();
+		$log = new \Monolog\Logger( Config::getInstance()->get( 'BOT_NAME', 'WikiversityListBot' ) );
 
-		$log = new \Monolog\Logger( 'Wikiversity List Bot' );
-		$log->pushHandler( new StreamHandler(
-			sprintf( '%s/logs/botlog_%s.log', dirname( __DIR__ ), $time->format( 'Y_m_d' ) ),
-			\Monolog\Logger::INFO )
+		$handler = new RotatingFileHandler(
+			sprintf( '%s/logs/botlog.log', dirname( __DIR__ ) ),
+			14,
+			\Monolog\Logger::INFO
 		);
+
+		$log->pushHandler( $handler );
 
 		$this->logger = $log;
 	}

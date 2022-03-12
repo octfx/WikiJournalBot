@@ -4,6 +4,9 @@ declare( strict_types=1 );
 
 namespace Octfx\WikiversityBot\Request;
 
+use GuzzleHttp\Exception\GuzzleException;
+use Octfx\WikiversityBot\Logger;
+
 /**
  * Request for retrieving the main content of a page
  */
@@ -25,6 +28,32 @@ final class PageContentRequest extends AbstractBaseRequest {
 			'rvprop' => 'content',
 			'rvslots' => 'main',
 			'titles' => $this->title,
+		];
+	}
+
+	/**
+	 * Returns the pages title and content in a keyed array
+	 * Array is empty if an error occurred
+	 *
+	 * @param AbstractBaseRequest $request
+	 * @return array
+	 * @throws GuzzleException
+	 */
+	public static function getContentFromRequest( AbstractBaseRequest $request ): array {
+		$response = AbstractBaseRequest::makeRequest( $request );
+
+		if ( isset( $response['error'] ) || !isset( $response['query'] ) ) {
+			Logger::getInstance()->error( 'Page content API result has errors.', $response['error'] ?? [] );
+
+			return [];
+		}
+
+		$page = array_shift( $response['query'] );
+		$page = array_shift( $page );
+
+		return [
+			'title' => $page['title'],
+			'content' => $page['revisions'][0]['slots']['main']['*'],
 		];
 	}
 }

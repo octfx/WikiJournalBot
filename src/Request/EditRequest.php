@@ -73,6 +73,7 @@ final class EditRequest extends AbstractBaseRequest {
 			'summary' => 'Wikiversity List Update',
 			'md5' => md5( $this->content ),
 			'token' => $this->token,
+			'assert' => 'user',
 		];
 	}
 }
