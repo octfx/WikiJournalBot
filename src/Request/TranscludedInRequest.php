@@ -25,7 +25,7 @@ final class TranscludedInRequest extends AbstractBaseRequest {
 			'prop' => 'transcludedin',
 			'titles' => $this->title,
 			'tiprop' => 'pageid|title',
-			'tinamespace' => '0',
+			'tinamespace' => '2',
 			'tishow' => '!redirect',
 			'tilimit' => '500',
 		];
