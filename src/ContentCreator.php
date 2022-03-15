@@ -29,14 +29,14 @@ final class ContentCreator {
 	 */
 	private $logger;
 
-    /**
-     * @var string Template used to start a list
-     */
+	/**
+	 * @var string Template used to start a list
+	 */
 	private string $startTemplate;
 
-    /**
-     * @var string Template used to end a list
-     */
+	/**
+	 * @var string Template used to end a list
+	 */
 	private string $endTemplate;
 
 	/**
@@ -51,15 +51,15 @@ final class ContentCreator {
 			return;
 		}
 
-		$this->title = $pageContentResult['title'];
-		$this->content = $pageContentResult['content'];
+		$this->title = $pageContentResult['title'] ?? '';
+		$this->content = $pageContentResult['content'] ?? '';
 
 		$this->startTemplate = $startTemplate;
 		$this->endTemplate = $endTemplate;
 	}
 
 	/**
-	 * Updates the page content with all WikiData articles for the given volume and issue
+	 * Returns the page content with all WikiData articles for the given volume and issue
 	 * Requires 'row_template' to be set in the page
 	 * As well as at least the volume (retrieved either through the page title or set in the template through |Volume=)
 	 *
@@ -72,12 +72,6 @@ final class ContentCreator {
 
 		if ( $journal === null || $volume === -1 || $this->content === null ) {
 			throw new RuntimeException( sprintf( 'Could not parse Volume and Issue for page %s', $this->title ) );
-		}
-
-		if ( !WikiversityBot::allowBots( $this->content ?? '', Config::getInstance()->get( 'BOT_NAME', 'WikiversityListBot' ) ) ) {
-			$this->logger->info( sprintf( 'Found {{nobots}} template in page "%s", skipping.', $this->title ) );
-
-			return null;
 		}
 
 		$found = preg_match( '/\|row_template\s?=\s?([\w\s]+)/', $this->content, $matches );
@@ -106,7 +100,7 @@ final class ContentCreator {
 			];
 		}
 
-		$out = [];
+		$items = [];
 
 		foreach ( $result['results']['bindings'] as $article ) {
 			$image = '';
@@ -115,7 +109,7 @@ final class ContentCreator {
 				$image = urldecode( $parts[1] );
 			}
 
-			$out[] = sprintf(
+			$items[] = sprintf(
 				'{{%s|item=%s|image=%s}}',
 				$template,
 				$article['itemLabel']['value'],
@@ -123,14 +117,15 @@ final class ContentCreator {
 			);
 		}
 
+		// Replace the content between the start- and end-template
 		$newText = preg_replace(
 			sprintf( '/{{%s([\w\s|=]+)}}(.*){{%s}}/s', $this->startTemplate, $this->endTemplate ),
-			sprintf( "{{%s$1}}\n%s\n{{%s}}", $this->startTemplate, implode( "\n\n", $out ), $this->endTemplate ),
+			sprintf( "{{%s$1}}\n%s\n{{%s}}", $this->startTemplate, implode( "\n\n", $items ), $this->endTemplate ),
 			$this->content
 		);
 
 		// Check if strings differ
-		if ( empty( $out ) || strcmp( ( $newText ?? $this->content ), $this->content ) === 0 ) {
+		if ( empty( $items ) || strcmp( ( $newText ?? $this->content ), $this->content ) === 0 ) {
 			$this->logger->debug( 'Page content did not change.' );
 			return null;
 		}
@@ -139,8 +134,8 @@ final class ContentCreator {
 	}
 
 	/**
-	 * Retrieve the volume and issue from the page content or title
-	 * Volume and Issue set in the template through |Volume=N |Issue=N takes precedence over the title
+	 * Retrieve the journal, volume and issue from the page content or title
+	 * Volume and Issue set in the template through |Volume=N |Issue=N take precedence over the title
 	 *
 	 * Page title is expected to be in the format ...Volume N Issue N
 	 *
@@ -189,13 +184,6 @@ final class ContentCreator {
 				$journalId = $id;
 			}
 		}
-
-		var_dump( [
-			$journalId,
-			$volume,
-			$issue,
-		] );
-		exit();
 
 		return [
 			$journalId,

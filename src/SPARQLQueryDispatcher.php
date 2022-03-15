@@ -47,7 +47,7 @@ final class SPARQLQueryDispatcher {
 			],
 			'headers' => [
 				'Accept' => 'application/sparql-results+json',
-				'User-Agent' => 'WikiversityListBot/1.0 (https://en.wikiversity.org/wiki/User:Octfx; info@octofox.de) PHP/' . PHP_VERSION,
+				'User-Agent' => 'WikiJournalBot/1.0 (https://en.wikiversity.org/wiki/User:Octfx; info@octofox.de) PHP/' . PHP_VERSION,
 			],
 		] );
 

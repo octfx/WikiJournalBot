@@ -150,6 +150,12 @@ SPARQL;
 			return;
 		}
 
+		if ( !self::allowBots( $response['content'] ?? '', Config::getInstance()->get( 'BOT_NAME', 'WikiJournalBot' ) ) ) {
+			$this->logger->info( sprintf( 'Found {{nobots}} template in page "%s", skipping.', $title ) );
+
+			return;
+		}
+
 		$contentCreator = new ContentCreator(
 			$response,
 			Config::getInstance()->get( 'ARTICLE_VOLUME_LIST_TEMPLATE' ),
@@ -180,7 +186,7 @@ SPARQL;
 	 * @return bool True if the bot can proceed
 	 */
 	private function checkBotAllowed(): bool {
-		$username = Config::getInstance()->get( 'BOT_NAME', 'WikiversityListBot' );
+		$username = Config::getInstance()->get( 'BOT_NAME', 'WikiJournalBot' );
 		$request = new PageContentRequest( sprintf( 'User:%s', $username ) );
 		try {
 			$response = PageContentRequest::getContentFromRequest( $request );

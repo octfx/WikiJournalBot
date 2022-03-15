@@ -1,5 +1,5 @@
 # Wikiversity Bot
-This bot can automatically list the articles of a given journal in the [WikiJournal use Group](https://en.wikiversity.org/wiki/WikiJournal_User_Group) (WikiJournal_of_X/Volume_Y_Issue_Z).
+This bot can automatically list the articles of a given journal in the [WikiJournal user Group](https://en.wikiversity.org/wiki/WikiJournal_User_Group) (WikiJournal_of_X/Volume_Y_Issue_Z).
 
 The bot retrieves all pages that transclude the `{{WikiJournalBotList}}` template.  
 Based on this list, the content of each page is retrieved and the volume and issue is extracted.
@@ -10,7 +10,7 @@ Then a SPARQL query retrieves all 'scholarly_article' (P31) that are:
 
 Now the page content between [`{{WikiJournalBotList}}`](https://en.wikiversity.org/wiki/Template:WikiJournalBotList) and [`{{ListEnd}}`](https://en.wikiversity.org/wiki/Template:ListEnd) is replaced with the articles found in the query.
 
-The actual rendering of the item is done by a separate template. Which template is used can be configured through the template.
+The actual rendering of the item is done by a separate template, it can be configured through the `row_template` argument.
 
 Note: Currently only one list per page is supported.
 
