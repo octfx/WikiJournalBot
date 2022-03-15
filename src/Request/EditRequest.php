@@ -70,7 +70,7 @@ final class EditRequest extends AbstractBaseRequest {
 			'title' => $this->title,
 			'format' => 'json',
 			'text' => $this->content,
-			'summary' => 'Wikiversity List Update',
+			'summary' => 'Automated Bot List Update',
 			'md5' => md5( $this->content ),
 			'token' => $this->token,
 			'assert' => 'user',
