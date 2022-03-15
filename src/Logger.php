@@ -4,6 +4,7 @@ declare( strict_types=1 );
 
 namespace Octfx\WikiversityBot;
 
+use InvalidArgumentException;
 use Monolog\Handler\RotatingFileHandler;
 
 final class Logger {
@@ -15,12 +16,19 @@ final class Logger {
 	 * Creates a monolog instance
 	 */
 	private function __construct() {
-		$log = new \Monolog\Logger( Config::getInstance()->get( 'BOT_NAME', 'WikiversityListBot' ) );
+		$log = new \Monolog\Logger( Config::getInstance()->get( 'BOT_NAME', 'WikiJournalBot' ) );
+		$level = \Monolog\Logger::INFO;
+
+		try {
+			\Monolog\Logger::toMonologLevel( Config::getInstance()->get( 'LOG_LEVEL', 'info' ) );
+		} catch ( InvalidArgumentException $e ) {
+			// discard
+		}
 
 		$handler = new RotatingFileHandler(
 			sprintf( '%s/logs/botlog.log', dirname( __DIR__ ) ),
 			14,
-			\Monolog\Logger::INFO
+			$level
 		);
 
 		$log->pushHandler( $handler );
