@@ -8,14 +8,14 @@ Then a SPARQL query retrieves all 'scholarly_article' (P31) that are:
 - published in 'WikiJournal of Medicine' (P1433 = Q24657325)
 - and match the given volume (P478) and issue (P433)
 
-Now the page content between `{{WikiJournalBotList}}` and `{{ListEnd}}` is replaced with the articles found in the query.
+Now the page content between [`{{WikiJournalBotList}}`](https://en.wikiversity.org/wiki/Template:WikiJournalBotList) and [`{{ListEnd}}`](https://en.wikiversity.org/wiki/Template:ListEnd) is replaced with the articles found in the query.
 
 The actual rendering of the item is done by a separate template. Which template is used can be configured through the template.
 
 Note: Currently only one list per page is supported.
 
-The bot will honor the [{{bots}}](https://en.wikipedia.org/wiki/Template:Bots) template, with the username set in `.env`.  
-The bot can be disabled by placing `{{nobots}}` on its user page.
+The bot will honor the [`{{bots}}`](https://en.wikipedia.org/wiki/Template:Bots) template, with the username set in `.env`.  
+The bot can be disabled by placing [`{{nobots}}`](https://en.wikipedia.org/wiki/Template:nobots) on its user page.
 
 ## Usage
 Pages that should be edited by the bot need to contain two templates.  
