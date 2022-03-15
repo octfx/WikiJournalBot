@@ -12,6 +12,19 @@ use MediaWiki\OAuthClient\Token;
  * Config object accessing values from '.env'
  */
 final class Config {
+	/**
+	 * List of supported journals
+	 * Maps Journal name to QID
+	 *
+	 * @var array
+	 */
+	private array $supportedJournals = [
+		'WikiJournal of Medicine' => 'Q24657325',
+		'WikiJournal of Science' => 'Q22674854',
+		'WikiJournal of Humanities' => 'Q56816727',
+		'WikiJournal of PPB' => 'Q105451083',
+		'WikiJournal Preprints' => 'Q100164397',
+	];
 
 	private static $instance;
 	private array $config;
@@ -66,9 +79,9 @@ final class Config {
 	 * @param string $key The key to access
 	 * @param mixed $default Default value to return if key was not found
 	 *
-	 * @return string|null
+	 * @return mixed
 	 */
-	public function get( string $key, $default = null ): ?string {
+	public function get( string $key, $default = null ) {
 		$value = $this->config[$key] ?? null;
 
 		if ( empty( $value ) ) {
@@ -94,6 +107,10 @@ final class Config {
 	 */
 	public function getSparqlEndpoint(): string {
 		return $this->get( 'SPARQL_ENDPOINT' );
+	}
+
+	public function getSupportedJournals(): array {
+		return $this->supportedJournals;
 	}
 
 	public function getConsumerToken(): Consumer {

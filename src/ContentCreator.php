@@ -29,11 +29,21 @@ final class ContentCreator {
 	 */
 	private $logger;
 
+    /**
+     * @var string Template used to start a list
+     */
+	private string $startTemplate;
+
+    /**
+     * @var string Template used to end a list
+     */
+	private string $endTemplate;
+
 	/**
 	 * @param array $pageContentResult Result from the MW API
 	 * @see PageContentRequest
 	 */
-	public function __construct( array $pageContentResult ) {
+	public function __construct( array $pageContentResult, string $startTemplate, string $endTemplate ) {
 		$this->logger = Logger::getInstance();
 
 		if ( empty( $pageContentResult ) ) {
@@ -43,6 +53,9 @@ final class ContentCreator {
 
 		$this->title = $pageContentResult['title'];
 		$this->content = $pageContentResult['content'];
+
+		$this->startTemplate = $startTemplate;
+		$this->endTemplate = $endTemplate;
 	}
 
 	/**
@@ -55,9 +68,9 @@ final class ContentCreator {
 	 * @return string|null Null if content did not change or the SPARQL query could not be executed
 	 */
 	public function getUpdatedPageContent(): ?string {
-		[ $volume, $issue ] = $this->getVolumeIssue();
+		[ $journal, $volume, $issue ] = $this->getJournalVolumeIssue();
 
-		if ( $volume === -1 || $this->content === null ) {
+		if ( $journal === null || $volume === -1 || $this->content === null ) {
 			throw new RuntimeException( sprintf( 'Could not parse Volume and Issue for page %s', $this->title ) );
 		}
 
@@ -67,14 +80,15 @@ final class ContentCreator {
 			return null;
 		}
 
-		$found = preg_match( '/\|row_template\s?=\s?(\w+)/', $this->content, $matches );
+		$found = preg_match( '/\|row_template\s?=\s?([\w\s]+)/', $this->content, $matches );
 		if ( $found === 0 || $found === false ) {
 			throw new RuntimeException( sprintf( 'Could not parse row_template for page %s', $this->title ) );
 		}
 
-		$template = $matches[1];
+		$template = trim( $matches[1] );
 
-		$query = sprintf( WikiversityBot::$PUBLISHED_ARTICLES, $volume, $issue );
+		$query = sprintf( WikiversityBot::$PUBLISHED_ARTICLES, $journal, $volume, $issue );
+
 		$request = new SPARQLQueryDispatcher();
 
 		try {
@@ -83,6 +97,13 @@ final class ContentCreator {
 			$this->logger->error( 'Could not retrieve SPARQL query.', [ 'message' => $e->getMessage() ] );
 
 			return null;
+		}
+
+		if ( !isset( $result['results']['bindings'] ) ) {
+			$this->logger->error( 'SPARQL query did not return any bindings.' );
+			$result['results'] = [
+				'bindings' => [],
+			];
 		}
 
 		$out = [];
@@ -103,13 +124,13 @@ final class ContentCreator {
 		}
 
 		$newText = preg_replace(
-			'/{{WikiversityBotList([\w\s|=]+)}}(.*){{ListEnd}}/s',
-			sprintf( "{{WikiversityBotList$1}}\n%s\n{{ListEnd}}", implode( "\n\n", $out ) ),
+			sprintf( '/{{%s([\w\s|=]+)}}(.*){{%s}}/s', $this->startTemplate, $this->endTemplate ),
+			sprintf( "{{%s$1}}\n%s\n{{%s}}", $this->startTemplate, implode( "\n\n", $out ), $this->endTemplate ),
 			$this->content
 		);
 
 		// Check if strings differ
-		if ( strcmp( ( $newText ?? $this->content ), $this->content ) === 0 ) {
+		if ( empty( $out ) || strcmp( ( $newText ?? $this->content ), $this->content ) === 0 ) {
 			$this->logger->debug( 'Page content did not change.' );
 			return null;
 		}
@@ -125,16 +146,29 @@ final class ContentCreator {
 	 *
 	 * @return int[]
 	 */
-	private function getVolumeIssue(): array {
+	private function getJournalVolumeIssue(): array {
 		$volume = -1;
 		$issue = 1;
+		$journalId = null;
 
-		$found = preg_match( '/\|Volume\s?=\s?(\d+)/', $this->content, $matches );
+		$found = preg_match( '/\|[Jj]ournal\s?=\s?([\w\s]+)/', $this->content, $matches );
+
+		if ( $found === 1 ) {
+			$journal = trim( $matches[1] );
+			if ( $journal[0] === 'Q' ) {
+				$journalId = $journal;
+			}
+		} else {
+			// First part of title
+			$journal = explode( '/', $this->title )[0] ?? null;
+		}
+
+		$found = preg_match( '/\|[Vv]olume\s?=\s?(\d+)/', $this->content, $matches );
 		if ( $found === 1 ) {
 			$volume = $matches[1];
 		}
 
-		$found = preg_match( '/\|Issue\s?=\s?(\d+)/', $this->content, $matches );
+		$found = preg_match( '/\|[Ii]ssue\s?=\s?(\d+)/', $this->content, $matches );
 		if ( $found === 1 ) {
 			$issue = $matches[1];
 		}
@@ -150,7 +184,21 @@ final class ContentCreator {
 			$issue = $matches[2] ?? 1;
 		}
 
+		foreach ( Config::getInstance()->getSupportedJournals() as $name => $id ) {
+			if ( $journal === $name ) {
+				$journalId = $id;
+			}
+		}
+
+		var_dump( [
+			$journalId,
+			$volume,
+			$issue,
+		] );
+		exit();
+
 		return [
+			$journalId,
 			$volume,
 			$issue,
 		];

@@ -15,8 +15,10 @@ final class WikiversityBot {
 
 	/**
 	 * SPARQL Query retrieving all 'scholarly_article' (P31)
-	 * Published in 'WikiJournal of Medicine' (P1433 = Q24657325)
+	 * Published in a known journal (P1433)
 	 * With a given volume (P478) and issue (P433)
+	 *
+	 * @see Config::getSupportedJournals()
 	 *
 	 * @var string
 	 */
@@ -29,7 +31,7 @@ SELECT DISTINCT ?item ?itemLabel ?image WHERE {
       ?statement0 (ps:P31/(wdt:P279*)) wd:Q13442814.
 
       ?item p:P1433 ?statement1.
-      ?statement1 (ps:P1433/(wdt:P279*)) wd:Q24657325.
+      ?statement1 (ps:P1433/(wdt:P279*)) wd:%s.
 
       ?item p:P478 ?statement2.
       ?statement2 (ps:P478) "%s".
@@ -77,7 +79,7 @@ SPARQL;
 	/**
 	 * Work on all pages that transclude the template set in 'ARTICLE_VOLUME_LIST_TEMPLATE'.
 	 * For each page retrieve all articles that match the query in $PUBLISHED_ARTICLES
-	 * Replace the content between {{ARTICLE_VOLUME_LIST_TEMPLATE}} and {{ListEnd}} with WikiText
+	 * Replace the content between {{ARTICLE_VOLUME_LIST_TEMPLATE}} and {{LIST_END_TEMPLATE}} with new WikiText
 	 *
 	 * @return void
 	 */
@@ -127,6 +129,8 @@ SPARQL;
 
 			sleep( (int)Config::getInstance()->get( 'THROTTLE', 1 ) );
 		}
+
+		$this->logger->info( sprintf( 'Done. Processed %d pages.', count( $pages['transcludedin'] ?? [] ) ) );
 	}
 
 	/**
@@ -146,7 +150,11 @@ SPARQL;
 			return;
 		}
 
-		$contentCreator = new ContentCreator( $response );
+		$contentCreator = new ContentCreator(
+			$response,
+			Config::getInstance()->get( 'ARTICLE_VOLUME_LIST_TEMPLATE' ),
+			Config::getInstance()->get( 'LIST_END_TEMPLATE' )
+		);
 
 		$content = $contentCreator->getUpdatedPageContent();
 
@@ -157,9 +165,12 @@ SPARQL;
 			$this->logger->info( sprintf( 'Updated title "%s".', $title ) );
 
 			$response = json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
+
 			if ( isset( $response['edit']['result'] ) && $response['edit']['result'] === 'success' ) {
 				$this->logger->info( sprintf( 'Successfully updated list for title "%s".', $title ) );
 			}
+		} else {
+			$this->logger->debug( sprintf( 'Skipping page "%s" due to no content change.', $title ) );
 		}
 	}
 
