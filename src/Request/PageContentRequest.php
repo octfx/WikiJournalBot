@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace Octfx\WikiversityBot\Request;
 
 use GuzzleHttp\Exception\GuzzleException;
+use JsonException;
 use Octfx\WikiversityBot\Logger;
 
 /**
@@ -42,6 +43,14 @@ final class PageContentRequest extends AbstractBaseRequest {
 	public static function getContentFromRequest( AbstractBaseRequest $request ): array {
 		$response = AbstractBaseRequest::makeRequest( $request );
 
+		try {
+			$response = json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
+		} catch ( JsonException $e ) {
+			Logger::getInstance()->error( $e->getMessage() );
+
+			return [];
+		}
+
 		if ( isset( $response['error'] ) || !isset( $response['query'] ) ) {
 			Logger::getInstance()->error( 'Page content API result has errors.', $response['error'] ?? [] );
 
@@ -53,7 +62,7 @@ final class PageContentRequest extends AbstractBaseRequest {
 
 		return [
 			'title' => $page['title'],
-			'content' => $page['revisions'][0]['slots']['main']['*'],
+			'content' => $page['revisions'][0]['slots']['main']['*'] ?? '',
 		];
 	}
 }
