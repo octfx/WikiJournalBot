@@ -20,9 +20,11 @@ The bot can be disabled by placing `{{nobots}}` on its user page.
 ## Usage
 Pages that should be edited by the bot need to contain two templates.  
 The beginning of a list is denoted by the `{{WikiJournalBotList}}` template, it takes the following arguments:
-- `Volume` (required when volume is not set in the page title)
+- `journal` (required when journal is not set in the page title)
+  - The journal name to use to find the journal QID to use in the SPARQL query
+- `volume` (required when volume is not set in the page title)
   - The volume number to use in the SPARQL query
-- `Issue` (required when issue is not set in the page title)
+- `issue` (required when issue is not set in the page title)
     - The issue number to use in the SPARQL query
 - `row_template`
   - The template to use for all found articles
