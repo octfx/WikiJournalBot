@@ -44,4 +44,4 @@ Set `ARTICLE_VOLUME_LIST_TEMPLATE` in `.env` to the template that is used on pag
 Set `LIST_END_TEMPLATE` in `.env` to the template that denotes the end of the list.
 
 Run `composer install --no-dev` in the folder where `.env` resides.  
-Run `php bot.php` to start the update process.  
+Run `php bot.php updateArticleLists` to start the update process.  
