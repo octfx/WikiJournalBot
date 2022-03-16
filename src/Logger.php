@@ -6,6 +6,7 @@ namespace Octfx\WikiversityBot;
 
 use InvalidArgumentException;
 use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
 
 final class Logger {
 
@@ -25,13 +26,13 @@ final class Logger {
 			// discard
 		}
 
-		$handler = new RotatingFileHandler(
+		$log->pushHandler( new RotatingFileHandler(
 			sprintf( '%s/logs/botlog.log', dirname( __DIR__ ) ),
 			14,
 			$level
-		);
+		) );
 
-		$log->pushHandler( $handler );
+		$log->pushHandler( new StreamHandler( 'php://stdout', $level ) );
 
 		$this->logger = $log;
 	}

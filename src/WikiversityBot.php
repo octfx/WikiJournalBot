@@ -22,7 +22,7 @@ final class WikiversityBot {
 	 *
 	 * @var string
 	 */
-	public static string $PUBLISHED_ARTICLES = <<< 'SPARQL'
+	public static string $PUBLISHED_ARTICLES_QUERY = <<< 'SPARQL'
 SELECT DISTINCT ?item ?itemLabel ?image WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }
   {
@@ -168,12 +168,14 @@ SPARQL;
 		if ( $content !== null ) {
 			$edit = new EditRequest( $title, $content );
 			$response = AbstractBaseRequest::makeRequest( $edit );
-			$this->logger->info( sprintf( 'Updated title "%s".', $title ) );
+			$this->logger->info( sprintf( 'Updating content for title "%s".', $title ) );
 
 			$response = json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
 
 			if ( isset( $response['edit']['result'] ) && $response['edit']['result'] === 'success' ) {
 				$this->logger->info( sprintf( 'Successfully updated list for title "%s".', $title ) );
+			} else {
+				$this->logger->error( sprintf( 'Edit request for title "%s" was unsuccessful.', $title ), $response );
 			}
 		} else {
 			$this->logger->debug( sprintf( 'Skipping page "%s" due to no content change.', $title ) );

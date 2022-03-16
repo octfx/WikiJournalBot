@@ -74,14 +74,14 @@ final class ContentCreator {
 			throw new RuntimeException( sprintf( 'Could not parse Volume and Issue for page %s', $this->title ) );
 		}
 
-		$found = preg_match( '/\|row_template\s?=\s?([\w\s]+)/', $this->content, $matches );
+		$found = preg_match( '/\|row_template\s?=\s?([\w\s-]+)/', $this->content, $matches );
 		if ( $found === 0 || $found === false ) {
 			throw new RuntimeException( sprintf( 'Could not parse row_template for page %s', $this->title ) );
 		}
 
 		$template = trim( $matches[1] );
 
-		$query = sprintf( WikiversityBot::$PUBLISHED_ARTICLES, $journal, $volume, $issue );
+		$query = sprintf( WikiversityBot::$PUBLISHED_ARTICLES_QUERY, $journal, $volume, $issue );
 
 		$request = new SPARQLQueryDispatcher();
 
@@ -135,9 +135,9 @@ final class ContentCreator {
 
 	/**
 	 * Retrieve the journal, volume and issue from the page content or title
-	 * Volume and Issue set in the template through |Volume=N |Issue=N take precedence over the title
+	 * Journal, Volume and Issue set in the template through |Journal=X |Volume=Y |Issue=Z take precedence over the title
 	 *
-	 * Page title is expected to be in the format ...Volume N Issue N
+	 * Page title is expected to be in the format WikiJournal .../Volume N Issue N
 	 *
 	 * @return int[]
 	 */
@@ -147,7 +147,6 @@ final class ContentCreator {
 		$journalId = null;
 
 		$found = preg_match( '/\|[Jj]ournal\s?=\s?([\w\s]+)/', $this->content, $matches );
-
 		if ( $found === 1 ) {
 			$journal = trim( $matches[1] );
 			if ( $journal[0] === 'Q' ) {

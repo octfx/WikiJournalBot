@@ -45,3 +45,9 @@ Set `LIST_END_TEMPLATE` in `.env` to the template that denotes the end of the li
 
 Run `composer install --no-dev` in the folder where `.env` resides.  
 Run `php bot.php updateArticleLists` to start the update process.  
+
+Add a cronjob to schedule updating the lists periodically
+```
+# Runs every monday on 06:00
+0 6 * * 1 jsub -N WikiJournalListUpdate -quiet php bot.php updateArticleLists
+```
