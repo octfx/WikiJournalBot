@@ -110,7 +110,7 @@ final class ContentCreator {
 			}
 
 			$items[] = sprintf(
-				'{{%s|item=%s|image=%s}}',
+				'{{%s|Q=%s|image=%s}}',
 				$template,
 				$article['itemLabel']['value'],
 				$image,
