@@ -2,16 +2,16 @@
 
 declare( strict_types=1 );
 
-namespace Octfx\WikiversityBot;
+namespace Octfx\WikiJournalBot;
 
 use GuzzleHttp\Exception\GuzzleException;
 use JsonException;
-use Octfx\WikiversityBot\Request\AbstractBaseRequest;
-use Octfx\WikiversityBot\Request\EditRequest;
-use Octfx\WikiversityBot\Request\PageContentRequest;
-use Octfx\WikiversityBot\Request\TranscludedInRequest;
+use Octfx\WikiJournalBot\Request\AbstractBaseRequest;
+use Octfx\WikiJournalBot\Request\EditRequest;
+use Octfx\WikiJournalBot\Request\PageContentRequest;
+use Octfx\WikiJournalBot\Request\TranscludedInRequest;
 
-final class WikiversityBot {
+final class WikiJournalBot {
 
 	/**
 	 * SPARQL Query retrieving all 'scholarly_article' (P31)

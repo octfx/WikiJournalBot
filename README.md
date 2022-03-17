@@ -1,4 +1,4 @@
-# Wikiversity Bot
+# WikiJournalBot
 This bot can automatically list the articles of a given journal in the [WikiJournal user Group](https://en.wikiversity.org/wiki/WikiJournal_User_Group) (WikiJournal_of_X/Volume_Y_Issue_Z).
 
 The bot retrieves all pages that transclude the `{{WikiJournalBotList}}` template.  

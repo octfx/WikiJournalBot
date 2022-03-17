@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace Octfx\WikiversityBot;
+namespace Octfx\WikiJournalBot;
 
 use Dotenv\Dotenv;
 use MediaWiki\OAuthClient\Consumer;

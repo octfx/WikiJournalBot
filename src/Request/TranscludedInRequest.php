@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace Octfx\WikiversityBot\Request;
+namespace Octfx\WikiJournalBot\Request;
 
 /**
  * Request for retrieving all pages that transclude a given page

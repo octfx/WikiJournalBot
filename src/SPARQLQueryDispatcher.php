@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace Octfx\WikiversityBot;
+namespace Octfx\WikiJournalBot;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;

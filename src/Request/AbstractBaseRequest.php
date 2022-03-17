@@ -2,14 +2,14 @@
 
 declare( strict_types=1 );
 
-namespace Octfx\WikiversityBot\Request;
+namespace Octfx\WikiJournalBot\Request;
 
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use MediaWiki\OAuthClient\Request;
 use MediaWiki\OAuthClient\SignatureMethod\HmacSha1;
-use Octfx\WikiversityBot\Config;
+use Octfx\WikiJournalBot\Config;
 use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractBaseRequest {

@@ -1,9 +1,9 @@
 {
-  "name": "octfx/wikiversity_bot",
+  "name": "octfx/wikijournalbot",
   "type": "project",
   "autoload": {
     "psr-4": {
-      "Octfx\\WikiversityBot\\": "src/"
+      "Octfx\\WikiJournalBot\\": "src/"
     }
   },
   "authors": [

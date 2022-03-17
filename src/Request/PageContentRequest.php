@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace Octfx\WikiversityBot\Request;
+namespace Octfx\WikiJournalBot\Request;
 
 use GuzzleHttp\Exception\GuzzleException;
 use JsonException;
-use Octfx\WikiversityBot\Logger;
+use Octfx\WikiJournalBot\Logger;
 
 /**
  * Request for retrieving the main content of a page

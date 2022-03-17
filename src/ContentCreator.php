@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace Octfx\WikiversityBot;
+namespace Octfx\WikiJournalBot;
 
 use GuzzleHttp\Exception\GuzzleException;
 use JsonException;
-use Octfx\WikiversityBot\Request\PageContentRequest;
+use Octfx\WikiJournalBot\Request\PageContentRequest;
 use RuntimeException;
 
 /**
@@ -81,7 +81,7 @@ final class ContentCreator {
 
 		$template = trim( $matches[1] );
 
-		$query = sprintf( WikiversityBot::$PUBLISHED_ARTICLES_QUERY, $journal, $volume, $issue );
+		$query = sprintf( WikiJournalBot::$PUBLISHED_ARTICLES_QUERY, $journal, $volume, $issue );
 
 		$request = new SPARQLQueryDispatcher();
 
