@@ -179,7 +179,7 @@ SPARQL;
 
 			$response = json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
 
-			if ( isset( $response['edit']['result'] ) && $response['edit']['result'] === 'success' ) {
+			if ( isset( $response['edit']['result'] ) && $response['edit']['result'] === 'Success' ) {
 				$this->logger->info( sprintf( 'Successfully updated list for title "%s".', $title ) );
 			} else {
 				$this->logger->error( sprintf( 'Edit request for title "%s" was unsuccessful.', $title ), $response );
