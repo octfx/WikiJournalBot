@@ -17,6 +17,7 @@ final class WikiJournalBot {
 	 * SPARQL Query retrieving all 'scholarly_article' (P31)
 	 * Published in a known journal (P1433)
 	 * With a given volume (P478) and issue (P433)
+     * Sorted by publication date (P577) and page number (P304)
 	 *
 	 * @see Config::getSupportedJournals()
 	 *
@@ -27,19 +28,25 @@ SELECT DISTINCT ?item ?itemLabel ?image WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }
   {
     SELECT DISTINCT ?item ?image WHERE {
+      #Instances of 'scholarly_article'
       ?item p:P31 ?statement0.
       ?statement0 (ps:P31/(wdt:P279*)) wd:Q13442814.
 
+      #From a given journal
       ?item p:P1433 ?statement1.
       ?statement1 (ps:P1433/(wdt:P279*)) wd:%s.
 
+      #Filter by volume and issue
       ?item p:P478 ?statement2.
       ?statement2 (ps:P478) "%s".
       ?item p:P433 ?statement3.
       ?statement3 (ps:P433) "%s".
 
       OPTIONAL{?item wdt:P18 ?image .}
+      OPTIONAL{?item wdt:P304 ?pages .}
+      OPTIONAL{?item wdt:P577 ?publication .}
     }
+    ORDER BY DESC(?publication) DESC(xsd:integer(?pages))
     LIMIT 100
   }
 }
