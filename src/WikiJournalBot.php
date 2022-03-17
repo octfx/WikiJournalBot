@@ -17,7 +17,7 @@ final class WikiJournalBot {
 	 * SPARQL Query retrieving all 'scholarly_article' (P31)
 	 * Published in a known journal (P1433)
 	 * With a given volume (P478) and issue (P433)
-     * Sorted by publication date (P577) and page number (P304)
+	 * Sorted by publication date (P577) and page number (P304)
 	 *
 	 * @see Config::getSupportedJournals()
 	 *
