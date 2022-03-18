@@ -18,7 +18,7 @@ final class Config {
 	 *
 	 * @var array
 	 */
-	private array $supportedJournals = [
+	private $supportedJournals = [
 		'WikiJournal of Medicine' => 'Q24657325',
 		'WikiJournal of Science' => 'Q22674854',
 		'WikiJournal of Humanities' => 'Q56816727',
@@ -27,17 +27,17 @@ final class Config {
 	];
 
 	private static $instance;
-	private array $config;
+	private $config;
 
 	/**
 	 * @var Consumer OAuth Consumer token (and secret)
 	 */
-	private Consumer $consumerToken;
+	private $consumerToken;
 
 	/**
 	 * @var Token OAuth Access token (and secret)
 	 */
-	private Token $accessToken;
+	private $accessToken;
 
 	/**
 	 * Constructs the instance and checks required keys

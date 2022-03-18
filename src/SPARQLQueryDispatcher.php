@@ -12,7 +12,7 @@ final class SPARQLQueryDispatcher {
 	/**
 	 * @var string The SPARQL Endpoint URL
 	 */
-	private string $endpointUrl;
+	private $endpointUrl;
 
 	/**
 	 * @param string $endpointUrl
