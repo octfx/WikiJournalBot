@@ -5,7 +5,6 @@ declare( strict_types=1 );
 namespace Octfx\WikiJournalBot;
 
 use GuzzleHttp\Exception\GuzzleException;
-use JsonException;
 use Octfx\WikiJournalBot\Request\PageContentRequest;
 use RuntimeException;
 
@@ -27,17 +26,17 @@ final class ContentCreator {
 	/**
 	 * @var \Monolog\Logger Logging instance
 	 */
-	private \Monolog\Logger $logger;
+	private $logger;
 
 	/**
 	 * @var string Template used to start a list
 	 */
-	private string $startTemplate;
+	private $startTemplate;
 
 	/**
 	 * @var string Template used to end a list
 	 */
-	private string $endTemplate;
+	private $endTemplate;
 
 	/**
 	 * @param array $pageContentResult Result from the MW API
@@ -87,7 +86,7 @@ final class ContentCreator {
 
 		try {
 			$result = $request->query( $query );
-		} catch ( JsonException | GuzzleException $e ) {
+		} catch ( RuntimeException | GuzzleException $e ) {
 			$this->logger->error( 'Could not retrieve SPARQL query.', [ 'message' => $e->getMessage() ] );
 
 			return null;

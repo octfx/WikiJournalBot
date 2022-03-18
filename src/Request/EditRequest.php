@@ -5,7 +5,6 @@ declare( strict_types=1 );
 namespace Octfx\WikiJournalBot\Request;
 
 use GuzzleHttp\Exception\GuzzleException;
-use JsonException;
 use Octfx\WikiJournalBot\Logger;
 use RuntimeException;
 
@@ -49,12 +48,12 @@ final class EditRequest extends AbstractBaseRequest {
 		$tokenRequest = new TokenRequest();
 		try {
 			$response = self::makeRequest( $tokenRequest );
-			$response = json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
+			$response = json_decode( (string)$response->getBody(), true ) ?? [];
 
 			if ( isset( $response['batchcomplete'], $response['query'] ) ) {
 				$this->token = $response['query']['tokens']['csrftoken'];
 			}
-		} catch ( JsonException | GuzzleException $e ) {
+		} catch ( GuzzleException $e ) {
 			$this->token = null;
 			Logger::getInstance()->error( $e->getMessage() );
 		}

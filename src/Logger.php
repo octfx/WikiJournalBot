@@ -10,7 +10,7 @@ use Monolog\Handler\StreamHandler;
 
 final class Logger {
 
-	private \Monolog\Logger $logger;
+	private $logger;
 	private static $instance;
 
 	/**

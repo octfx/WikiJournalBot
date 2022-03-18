@@ -12,7 +12,7 @@ final class TranscludedInRequest extends AbstractBaseRequest {
 	/**
 	 * @var string The title to work on
 	 */
-	private string $title;
+	private $title;
 
 	public function __construct( string $title ) {
 		$this->title = $title;

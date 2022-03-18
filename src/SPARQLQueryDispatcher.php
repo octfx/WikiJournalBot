@@ -6,7 +6,7 @@ namespace Octfx\WikiJournalBot;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use JsonException;
+use RuntimeException;
 
 final class SPARQLQueryDispatcher {
 	/**
@@ -30,8 +30,8 @@ final class SPARQLQueryDispatcher {
 	 *
 	 * @param string $sparqlQuery The query to run
 	 *
-	 * @throws JsonException
 	 * @throws GuzzleException
+	 * @throws RuntimeException
 	 *
 	 * @return array
 	 */
@@ -51,6 +51,12 @@ final class SPARQLQueryDispatcher {
 			],
 		] );
 
-		return json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
+		$responseData = json_decode( (string)$response->getBody(), true );
+
+		if ( $responseData === null ) {
+			throw new RuntimeException( (string)$response->getBody() );
+		}
+
+		return $responseData;
 	}
 }

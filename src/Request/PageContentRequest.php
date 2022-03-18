@@ -5,7 +5,6 @@ declare( strict_types=1 );
 namespace Octfx\WikiJournalBot\Request;
 
 use GuzzleHttp\Exception\GuzzleException;
-use JsonException;
 use Octfx\WikiJournalBot\Logger;
 
 /**
@@ -15,7 +14,7 @@ final class PageContentRequest extends AbstractBaseRequest {
 	/**
 	 * @var string The title to work on
 	 */
-	private string $title;
+	private $title;
 
 	public function __construct( string $title ) {
 		$this->title = $title;
@@ -43,10 +42,9 @@ final class PageContentRequest extends AbstractBaseRequest {
 	public static function getContentFromRequest( AbstractBaseRequest $request ): array {
 		$response = AbstractBaseRequest::makeRequest( $request );
 
-		try {
-			$response = json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
-		} catch ( JsonException $e ) {
-			Logger::getInstance()->error( $e->getMessage() );
+		$response = json_decode( (string)$response->getBody(), true );
+		if ( $response === null ) {
+			Logger::getInstance()->error( 'Could not parse content request body.' );
 
 			return [];
 		}

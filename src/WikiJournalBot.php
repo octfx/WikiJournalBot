@@ -5,11 +5,11 @@ declare( strict_types=1 );
 namespace Octfx\WikiJournalBot;
 
 use GuzzleHttp\Exception\GuzzleException;
-use JsonException;
 use Octfx\WikiJournalBot\Request\AbstractBaseRequest;
 use Octfx\WikiJournalBot\Request\EditRequest;
 use Octfx\WikiJournalBot\Request\PageContentRequest;
 use Octfx\WikiJournalBot\Request\TranscludedInRequest;
+use RuntimeException;
 
 final class WikiJournalBot {
 
@@ -23,7 +23,7 @@ final class WikiJournalBot {
 	 *
 	 * @var string
 	 */
-	public static string $PUBLISHED_ARTICLES_QUERY = <<< 'SPARQL'
+	public static $PUBLISHED_ARTICLES_QUERY = <<< 'SPARQL'
 SELECT DISTINCT ?item ?itemLabel ?image WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }
   {
@@ -111,8 +111,12 @@ SPARQL;
 		$pages = new TranscludedInRequest( $template );
 		try {
 			$response = AbstractBaseRequest::makeRequest( $pages );
-			$pages = json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
-		} catch ( JsonException | GuzzleException $e ) {
+			$pages = json_decode( (string)$response->getBody(), true );
+			if ( $pages === null ) {
+				$this->logger->error( 'Could not parse body of TranscludedInRequest.' );
+				return;
+			}
+		} catch ( GuzzleException $e ) {
 			$this->logger->error( $e->getMessage() );
 			$pages = [];
 		}
@@ -130,7 +134,7 @@ SPARQL;
 
 			try {
 				$this->updatePage( $page['title'] );
-			} catch ( JsonException | GuzzleException $e ) {
+			} catch ( RuntimeException | GuzzleException $e ) {
 				$this->logger->error( $e->getMessage() );
 			}
 
@@ -144,7 +148,7 @@ SPARQL;
 	 * Does the actual page edit request
 	 *
 	 * @throws GuzzleException
-	 * @throws JsonException
+	 * @throws RuntimeException
 	 */
 	private function updatePage( string $title ): void {
 		$request = new PageContentRequest( $title );
@@ -177,7 +181,11 @@ SPARQL;
 			$response = AbstractBaseRequest::makeRequest( $edit );
 			$this->logger->info( sprintf( 'Updating content for title "%s".', $title ) );
 
-			$response = json_decode( (string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR );
+			$response = json_decode( (string)$response->getBody(), true );
+
+			if ( $response === null ) {
+				throw new RuntimeException( 'Could not parse response of edit request.' );
+			}
 
 			if ( isset( $response['edit']['result'] ) && $response['edit']['result'] === 'Success' ) {
 				$this->logger->info( sprintf( 'Successfully updated list for title "%s".', $title ) );
