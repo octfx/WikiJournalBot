@@ -28,13 +28,13 @@ The beginning of a list is denoted by the `{{WikiJournalBotList}}` template, it 
     - The issue number to use in the SPARQL query
 - `row_template`
   - The template to use for all found articles
-  - The WikiData ID is set as the `item` argument
+  - The WikiData ID is set as the `Q` argument
 
 The SPARQL query automatically fetches an available image set in P18 and sets it as `image=File.ending` in the template
 defined in `row_template`.
 
 ## Installation
-Head over to https://meta.wikimedia.org/wiki/Special:OAuthConsumerRegistration/propose and register a consumer only OAuth 1.0 application.
+Head over to [OAuthConsumerRegistration](https://meta.wikimedia.org/wiki/Special:OAuthConsumerRegistration/propose) and register a consumer only OAuth 1.0 application.  
 Check: `This consumer is for use only by XXX.`  
 Applicable project: `enwikiversity`  
 Required grants: `Edit existing pages`  

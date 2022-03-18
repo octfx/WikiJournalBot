@@ -27,7 +27,7 @@ final class ContentCreator {
 	/**
 	 * @var \Monolog\Logger Logging instance
 	 */
-	private $logger;
+	private \Monolog\Logger $logger;
 
 	/**
 	 * @var string Template used to start a list
@@ -71,15 +71,15 @@ final class ContentCreator {
 		[ $journal, $volume, $issue ] = $this->getJournalVolumeIssue();
 
 		if ( $journal === null || $volume === -1 || $this->content === null ) {
-			throw new RuntimeException( sprintf( 'Could not parse Volume and Issue for page %s', $this->title ) );
+			throw new RuntimeException( sprintf( 'Could not parse Journal, Volume and Issue for page %s', $this->title ) );
 		}
 
 		$found = preg_match( '/\|row_template\s?=\s?([\w\s-]+)/', $this->content, $matches );
 		if ( $found === 0 || $found === false ) {
-			throw new RuntimeException( sprintf( 'Could not parse row_template for page %s', $this->title ) );
+			$template = Config::getInstance()->get( 'DEFAULT_ROW_TEMPLATE' );
+		} else {
+			$template = trim( $matches[1] );
 		}
-
-		$template = trim( $matches[1] );
 
 		$query = sprintf( WikiJournalBot::$PUBLISHED_ARTICLES_QUERY, $journal, $volume, $issue );
 
@@ -144,18 +144,6 @@ final class ContentCreator {
 	private function getJournalVolumeIssue(): array {
 		$volume = -1;
 		$issue = 1;
-		$journalId = null;
-
-		$found = preg_match( '/\|[Jj]ournal\s?=\s?([\w\s]+)/', $this->content, $matches );
-		if ( $found === 1 ) {
-			$journal = trim( $matches[1] );
-			if ( $journal[0] === 'Q' ) {
-				$journalId = $journal;
-			}
-		} else {
-			// First part of title
-			$journal = explode( '/', $this->title )[0] ?? null;
-		}
 
 		$found = preg_match( '/\|[Vv]olume\s?=\s?(\d+)/', $this->content, $matches );
 		if ( $found === 1 ) {
@@ -178,16 +166,39 @@ final class ContentCreator {
 			$issue = $matches[2] ?? 1;
 		}
 
-		foreach ( Config::getInstance()->getSupportedJournals() as $name => $id ) {
-			if ( $journal === $name ) {
-				$journalId = $id;
-			}
-		}
-
 		return [
-			$journalId,
+			$this->getJournalId(),
 			$volume,
 			$issue,
 		];
+	}
+
+	/**
+	 * Returns the journal id based on the name set in |journal= or a journal found in the page title
+	 * Null otherwise
+	 *
+	 * @return string|null
+	 */
+	private function getJournalId(): ?string {
+		$journal = null;
+
+		$found = preg_match( '/\|[Jj]ournal\s?=\s?([\w\s]+)/', $this->content, $matches );
+		if ( $found === 1 ) {
+			$journal = trim( $matches[1] );
+			if ( $journal[0] === 'Q' ) {
+				return $journal;
+			}
+		}
+
+		foreach ( Config::getInstance()->getSupportedJournals() as $name => $id ) {
+			// Check if template argument or page title matches a known journal
+			if ( $journal === $name || strpos( $this->title, $name ) !== false ) {
+				return $id;
+			}
+		}
+
+		$this->logger->error( sprintf( 'Could not find journal for title "%s".', $this->title ) );
+
+		return null;
 	}
 }

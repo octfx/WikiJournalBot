@@ -54,6 +54,7 @@ final class Config {
 			'SPARQL_ENDPOINT',
 			'ARTICLE_VOLUME_LIST_TEMPLATE',
 			'LIST_END_TEMPLATE',
+			'DEFAULT_ROW_TEMPLATE',
 		] )
 			->notEmpty();
 
