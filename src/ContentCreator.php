@@ -112,7 +112,7 @@ final class ContentCreator {
 				'{{%s|Q=%s|image=%s}}',
 				$template,
 				$article['itemLabel']['value'],
-				$image,
+				$image
 			);
 		}
 
