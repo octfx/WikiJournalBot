@@ -130,7 +130,7 @@ SPARQL;
 		$pages = array_shift( $pages ) ?? [];
 
 		foreach ( $pages['transcludedin'] ?? [] as $page ) {
-			$this->logger->info( sprintf( 'Populating list of articles for title "%s".', $page['title'] ) );
+			$this->logger->info( sprintf( 'Working on title "%s".', $page['title'] ) );
 
 			try {
 				$this->updatePage( $page['title'] );
