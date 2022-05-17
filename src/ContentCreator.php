@@ -118,7 +118,7 @@ final class ContentCreator {
 
 		// Replace the content between the start- and end-template
 		$newText = preg_replace(
-			sprintf( '/{{%s([\w\s|=]+)}}(.*){{%s}}/s', $this->startTemplate, $this->endTemplate ),
+			sprintf( '/{{%s([\w\s|=]+)?}}(.*){{%s}}/si', $this->startTemplate, $this->endTemplate ),
 			sprintf( "{{%s$1}}\n%s\n{{%s}}", $this->startTemplate, implode( "\n\n", $items ), $this->endTemplate ),
 			$this->content
 		);
@@ -158,7 +158,7 @@ final class ContentCreator {
 			$found = preg_match( '/Volume\s(\d+)\sIssue\s(\d+)/', $this->title, $matches );
 
 			if ( $found === false || $found === 0 ) {
-				return [ -1, -1 ];
+				return [ $this->getJournalId(), -1, -1 ];
 			}
 
 			$volume = $matches[1];
