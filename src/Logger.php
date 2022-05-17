@@ -21,7 +21,7 @@ final class Logger {
 		$level = \Monolog\Logger::INFO;
 
 		try {
-			\Monolog\Logger::toMonologLevel( Config::getInstance()->get( 'LOG_LEVEL', 'info' ) );
+			$level = \Monolog\Logger::toMonologLevel( Config::getInstance()->get( 'LOG_LEVEL', 'info' ) );
 		} catch ( InvalidArgumentException $e ) {
 			// discard
 		}
