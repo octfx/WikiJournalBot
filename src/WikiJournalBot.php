@@ -24,19 +24,19 @@ final class WikiJournalBot {
 	 * @var string
 	 */
 	public static $PUBLISHED_ARTICLES_QUERY = <<< 'SPARQL'
-SELECT DISTINCT ?item ?itemLabel ?image WHERE {
+SELECT DISTINCT ?item ?itemLabel ?image ?pages ?publication WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }
   {
-    SELECT DISTINCT ?item ?image WHERE {
-      #Instances of 'scholarly_article'
+    SELECT DISTINCT ?item ?image ?pages ?publication WHERE {
+      # Instances of 'scholarly_article'
       ?item p:P31 ?statement0.
       ?statement0 (ps:P31/(wdt:P279*)) wd:Q13442814.
 
-      #From a given journal
+      # From a given journal
       ?item p:P1433 ?statement1.
       ?statement1 (ps:P1433/(wdt:P279*)) wd:%s.
 
-      #Filter by volume and issue
+      # Filter by volume and issue
       ?item p:P478 ?statement2.
       ?statement2 (ps:P478) "%s".
       ?item p:P433 ?statement3.
@@ -46,10 +46,10 @@ SELECT DISTINCT ?item ?itemLabel ?image WHERE {
       OPTIONAL{?item wdt:P304 ?pages .}
       OPTIONAL{?item wdt:P577 ?publication .}
     }
-    ORDER BY DESC(?publication) DESC(xsd:integer(?pages))
     LIMIT 100
   }
 }
+ORDER BY DESC(?publication) DESC(xsd:integer(?pages))
 SPARQL;
 
 	/**
